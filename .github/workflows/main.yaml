@@ -1,11 +1,2 @@
-# ... 
 
-PRIVATE_KEY: ${{ secrets.SCHOOL_COMPUTER_LAB27 }} # Reference the private key stored in GitHub Secrets
-
-# ...     
-
-ssh -o StrictHostKeyChecking=no -i private_key.pem -tt jharvey2@34.57.52.59 <<EOF  
-
-# ...     
-cd test-app-devops-1-2026 #go to repo
 
