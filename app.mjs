@@ -1,4 +1,4 @@
-// app.js
+//
 
 import express from 'express'
 // es5 syntax: import express from 'express'
