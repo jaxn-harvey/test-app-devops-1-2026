@@ -4,6 +4,7 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 // import * as fs from 'node:fs';
+import { readFile } from 'fs/promises';
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -11,6 +12,7 @@ const __dirname = dirname(__filename);
 // const files = fs.readFile('.');
 // let myVar = 'demo purposes only';
 
+app.use(express.static(join(__dirname, 'public')));
 app.use(express.json()); 
 
 // middlewares aka endpoints aka 'get to slash' {http verb} to slash {you name ur endpoint}
