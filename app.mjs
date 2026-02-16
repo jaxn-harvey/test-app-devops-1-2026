@@ -8,7 +8,7 @@ import express from 'express'
 const app = express()
 
 app.get('/', (req, res) => {
-  res.send('Hello, Express 2')
+  res.send('Hello, Express v2')
 })
 
 // start the server
