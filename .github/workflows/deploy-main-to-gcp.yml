@@ -26,18 +26,18 @@ jobs:
       - name: Deploy over SSH
         shell: bash
         env:
-          SSH_USER: barrycumbie #${{ secrets.SSH_USER }}
-          SSH_HOST: 34.125.200.148 #${{ secrets.SSH_HOST }}
-          APP_DIR:  app # ${{ vars.APP_DIR }}
-          PM2_NAME: app # ${{ vars.PM2_NAME }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          APP_DIR:  ${{ vars.APP_DIR }}
+          PM2_NAME: ${{ vars.PM2_NAME }}
         run: |
-          ssh -i ~/.ssh/id_rsa -T "$SSH_USER@$SSH_HOST" <<EOF
+          ssh -i ~/.ssh/id_rsa -tt "$SSH_USER@$SSH_HOST" <<EOF
             set -e
 
             cd "$APP_DIR"
 
             git pull
-            sudo npm ci
+            npm ci
 
             pm2 delete "$PM2_NAME" || true
             pm2 start -f app.mjs --name "$PM2_NAME"
