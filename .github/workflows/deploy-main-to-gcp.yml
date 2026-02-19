@@ -1,4 +1,4 @@
-# Attempted to update node.js in Google Cloud to 20.19.0
+# Attempted to update node.js in Google Cloud to 20.19.0 and install mongodb
 name: deploy-main-to-gcp.yml
 
 on:
