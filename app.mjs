@@ -69,13 +69,13 @@ connectToMongo();
 app.get('/', (req, res) => {
   // res.send('Hello Express'); //string response
   // res.sendFile('index.html'); // <- this don't work w/o imports, assign, and arguements
-  res.sendFile(join(__dirname, 'public', 'bio.html')) ;
+  res.sendFile(join(__dirname, 'public', 'index.html')) ;
 
 })
 
 app.get('/inject', (req, res) => {
   // Inject a server variable into barry.html: templating view like ejs or pug
-  readFile(join(__dirname, 'public', 'bio.html'), 'utf8')
+  readFile(join(__dirname, 'public', 'index.html'), 'utf8')
     .then(html => {
       // Replace a placeholder in the HTML (e.g., {{myVar}})
       const injectedHtml = html.replace('{{myVar}}', myVar);
@@ -87,67 +87,67 @@ app.get('/inject', (req, res) => {
 })
 
 // API Health/Endpoints Documentation
-app.get('/api/health', (req, res) => {
-  const endpoints = [
-    {
-      method: 'GET',
-      path: '/',
-      description: 'Serve the main HTML page'
-    },
-    {
-      method: 'GET',
-      path: '/inject',
-      description: 'Serve HTML with server-side variable injection'
-    },
-    {
-      method: 'GET',
-      path: '/api/health',
-      description: 'Show all available API endpoints'
-    },
-    {
-      method: 'GET',
-      path: '/api/class',
-      description: 'Get class information (course details)'
-    },
-    {
-      method: 'POST',
-      path: '/api/attendance',
-      description: 'CREATE - Add new student attendance record',
-      bodyExample: {
-        studentName: 'John Doe',
-        date: 'February 3, 2026',
-        keyword: 'devops'
-      }
-    },
-    {
-      method: 'GET',
-      path: '/api/attendance',
-      description: 'READ - Get all attendance records'
-    },
-    {
-      method: 'PUT',
-      path: '/api/attendance/:id',
-      description: 'UPDATE - Update existing attendance record',
-      bodyExample: {
-        studentName: 'Jane Doe',
-        date: 'February 3, 2026',
-        keyword: 'mongodb'
-      }
-    },
-    {
-      method: 'DELETE',
-      path: '/api/attendance/:id',
-      description: 'DELETE - Remove attendance record'
-    }
-  ];
+// app.get('/api/health', (req, res) => {
+//   const endpoints = [
+//     {
+//       method: 'GET',
+//       path: '/',
+//       description: 'Serve the main HTML page'
+//     },
+//     {
+//       method: 'GET',
+//       path: '/inject',
+//       description: 'Serve HTML with server-side variable injection'
+//     },
+//     {
+//       method: 'GET',
+//       path: '/api/health',
+//       description: 'Show all available API endpoints'
+//     },
+//     {
+//       method: 'GET',
+//       path: '/api/class',
+//       description: 'Get class information (course details)'
+//     },
+//     {
+//       method: 'POST',
+//       path: '/api/attendance',
+//       description: 'CREATE - Add new student attendance record',
+//       bodyExample: {
+//         studentName: 'John Doe',
+//         date: 'February 3, 2026',
+//         keyword: 'devops'
+//       }
+//     },
+//     {
+//       method: 'GET',
+//       path: '/api/attendance',
+//       description: 'READ - Get all attendance records'
+//     },
+//     {
+//       method: 'PUT',
+//       path: '/api/attendance/:id',
+//       description: 'UPDATE - Update existing attendance record',
+//       bodyExample: {
+//         studentName: 'Jane Doe',
+//         date: 'February 3, 2026',
+//         keyword: 'mongodb'
+//       }
+//     },
+//     {
+//       method: 'DELETE',
+//       path: '/api/attendance/:id',
+//       description: 'DELETE - Remove attendance record'
+//     }
+//   ];
 
-  res.json({
-    status: 'healthy',
-    server: 'CIS 486 DevOps Server',
-    timestamp: new Date().toISOString(),
-    endpoints: endpoints
-  });
-});
+//   res.json({
+//     status: 'healthy',
+//     server: 'CIS 486 DevOps Server',
+//     timestamp: new Date().toISOString(),
+//     endpoints: endpoints
+//   });
+// });
 
 //start the server. 
 app.listen(3000, () => {

@@ -1,0 +1,87 @@
+
+.bd-placeholder-img {
+    font-size: 1.125rem;
+    text-anchor: middle;
+  }
+
+  @media (min-width: 768px) {
+    .bd-placeholder-img-lg {
+      font-size: 3.5rem;
+    }
+  }
+
+  body {
+    background-image: url(../images/background.jpg);
+  }
+
+  .jumbotron {
+    margin-top: 75px;
+    margin-bottom: 75px;
+  }
+
+  .spacer {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+
+  .card {
+    background-color: #fff;
+    width: 300px;
+    margin: auto;
+    text-align: center;
+    font-family: arial;
+    box-shadow: 10px 10px #A5A5A5;
+  }
+  
+  #profile-pic {
+    width: 299px;
+    height: 300px;
+  }
+
+  #profile-pic2 {
+    width: 299px;
+    height: 300px;
+  }
+  
+  .bio {
+    text-align: left;
+    margin-top: 10px;
+  }
+  
+  .links {
+    padding: 14px 0 16px 0;
+    background-color: #C7D6D5;
+    text-align: center;
+    width: 300px;
+  }
+  
+  .links a {
+    padding: 14px 0 16px 0;
+    text-decoration: none;
+    font-size: 15px;
+    color: #101935; 
+    
+  }
+  
+  a:hover {
+    
+    color: black;
+    font-weight: bold; 
+  }
+
+  .pad {
+    padding: 15px;
+  }
+
+  .carousel {
+    width:500px;
+    height: 400px;
+    align-items: center;
+    margin: 50px 0px 150px 500px;;
+  
+  }
+
+  .cert {
+    margin: 50px;
+    box-shadow: 10px 10px #A5A5A5;
+  }
