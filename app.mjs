@@ -33,7 +33,7 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const uri = process.env.MONGO_URI;  
-const myVar = 'injected from server'; // Declare your variable
+//const myVar = 'injected from server'; // Declare your variable
 
 
 app.use(express.static(join(__dirname, 'public')));
@@ -86,68 +86,68 @@ app.get('/inject', (req, res) => {
     });
 })
 
-// API Health/Endpoints Documentation
-// app.get('/api/health', (req, res) => {
-//   const endpoints = [
-//     {
-//       method: 'GET',
-//       path: '/',
-//       description: 'Serve the main HTML page'
-//     },
-//     {
-//       method: 'GET',
-//       path: '/inject',
-//       description: 'Serve HTML with server-side variable injection'
-//     },
-//     {
-//       method: 'GET',
-//       path: '/api/health',
-//       description: 'Show all available API endpoints'
-//     },
-//     {
-//       method: 'GET',
-//       path: '/api/class',
-//       description: 'Get class information (course details)'
-//     },
-//     {
-//       method: 'POST',
-//       path: '/api/attendance',
-//       description: 'CREATE - Add new student attendance record',
-//       bodyExample: {
-//         studentName: 'John Doe',
-//         date: 'February 3, 2026',
-//         keyword: 'devops'
-//       }
-//     },
-//     {
-//       method: 'GET',
-//       path: '/api/attendance',
-//       description: 'READ - Get all attendance records'
-//     },
-//     {
-//       method: 'PUT',
-//       path: '/api/attendance/:id',
-//       description: 'UPDATE - Update existing attendance record',
-//       bodyExample: {
-//         studentName: 'Jane Doe',
-//         date: 'February 3, 2026',
-//         keyword: 'mongodb'
-//       }
-//     },
-//     {
-//       method: 'DELETE',
-//       path: '/api/attendance/:id',
-//       description: 'DELETE - Remove attendance record'
-//     }
-//   ];
+//API Health/Endpoints Documentation
+app.get('/pages/pycert.html', (req, res) => {
+  const endpoints = [
+    {
+      method: 'GET',
+      path: '/',
+      description: 'Serve the main HTML page'
+    },
+    {
+      method: 'GET',
+      path: '/inject',
+      description: 'Serve HTML with server-side variable injection'
+    },
+    {
+      method: 'GET',
+      path: '/api/health',
+      description: 'Show all available API endpoints'
+    },
+    {
+      method: 'GET',
+      path: '/api/class',
+      description: 'Get class information (course details)'
+    },
+    {
+      method: 'POST',
+      path: '/api/attendance',
+      description: 'CREATE - Add new student attendance record',
+      bodyExample: {
+        studentName: 'John Doe',
+        date: 'February 3, 2026',
+        keyword: 'devops'
+      }
+    },
+    {
+      method: 'GET',
+      path: '/api/attendance',
+      description: 'READ - Get all attendance records'
+    },
+    {
+      method: 'PUT',
+      path: '/api/attendance/:id',
+      description: 'UPDATE - Update existing attendance record',
+      bodyExample: {
+        studentName: 'Jane Doe',
+        date: 'February 3, 2026',
+        keyword: 'mongodb'
+      }
+    },
+    {
+      method: 'DELETE',
+      path: '/api/attendance/:id',
+      description: 'DELETE - Remove attendance record'
+    }
+  ];
 
-//   res.json({
-//     status: 'healthy',
-//     server: 'CIS 486 DevOps Server',
-//     timestamp: new Date().toISOString(),
-//     endpoints: endpoints
-//   });
-// });
+  res.json({
+    status: 'healthy',
+    server: 'CIS 486 DevOps Server',
+    timestamp: new Date().toISOString(),
+    endpoints: endpoints
+  });
+});
 
 //start the server. 
 app.listen(3000, () => {
