@@ -45,7 +45,3 @@ jobs:
 
             pm2 save
           EOF
-        - name: Remove any uncommitted changes
-          shell: bash
-          run: | 
-           git reset --hard && git clean -fd
