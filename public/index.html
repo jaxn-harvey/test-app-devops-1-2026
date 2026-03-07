@@ -1,273 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CIS 486 - Attendance Tracker</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-    }
-    .container {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    h1, h2 {
-      color: #333;
-    }
-    .class-info {
-      background: #e8f4fd;
-      border-left: 4px solid #2196F3;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-    input {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 16px;
-    }
-    button {
-      background: #2196F3;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 16px;
-      margin-right: 10px;
-    }
-    button:hover {
-      background: #1976D2;
-    }
-    .delete-btn {
-      background: #f44336;
-    }
-    .delete-btn:hover {
-      background: #d32f2f;
-    }
-    .edit-btn {
-      background: #ff9800;
-    }
-    .edit-btn:hover {
-      background: #f57c00;
-    }
-    .message {
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 4px;
-    }
-    .success {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
-    .error {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
-    .record {
-      background: #f8f9fa;
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 4px;
-      border: 1px solid #dee2e6;
-    }
-    #attendanceList {
-      max-height: 400px;
-      overflow-y: auto;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jackson Harvey</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.2/css/bootstrap.min.css'>
+    <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
-  <!-- Class Information Section -->
-  <div class="container class-info">
-    <h1>Class Information</h1>
-    <div id="classInfo">Loading class information...</div>
-  </div>
 
-  <!-- Attendance Form -->
-  <div class="container">
-    <h2>Student Attendance</h2>
-    <div id="message"></div>
-    
-    <form id="attendanceForm">
-      <div class="form-group">
-        <label for="studentName">Student Name:</label>
-        <input type="text" id="studentName" required>
-      </div>
-      
-      <div class="form-group">
-        <label for="date">Today's Date:</label>
-        <input type="text" id="date" required placeholder="February 3, 2026">
-      </div>
-      
-      <div class="form-group">
-        <label for="keyword">Keyword from Board:</label>
-        <input type="text" id="keyword" required>
-      </div>
-      
-      <button type="submit">Record Attendance</button>
-      <button type="button" onclick="loadAttendance()">Refresh List</button>
-    </form>
-  </div>
-
-  <!-- Attendance Records -->
-  <div class="container">
-    <h2>Attendance Records</h2>
-    <div id="attendanceList">Loading attendance records...</div>
-  </div>
-
-  <script>
-    let editingId = null;
-
-    // Load class information on page load
-    async function loadClassInfo() {
-      try {
-        const response = await fetch('/api/class');
-        const classData = await response.json();
-        
-        document.getElementById('classInfo').innerHTML = `
-          <h3>${classData.courseNumber} - ${classData.courseName}</h3>
-          <p><strong>Nickname:</strong> ${classData.nickname}</p>
-          <p><strong>Semester:</strong> ${classData.semester}</p>
-          <p><strong>Calendar:</strong> ${classData.calendar}</p>
-        `;
-      } catch (error) {
-        document.getElementById('classInfo').innerHTML = 'Error loading class information';
-      }
-    }
-
-    // Handle form submission
-    document.getElementById('attendanceForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const studentName = document.getElementById('studentName').value;
-      const date = document.getElementById('date').value;
-      const keyword = document.getElementById('keyword').value;
-
-      try {
-        const url = editingId ? `/api/attendance/${editingId}` : '/api/attendance';
-        const method = editingId ? 'PUT' : 'POST';
-        
-        const response = await fetch(url, {
-          method: method,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            studentName,
-            date,
-            keyword
-          })
-        });
-
-        const result = await response.json();
-        
-        if (response.ok) {
-          showMessage(result.message, 'success');
-          document.getElementById('attendanceForm').reset();
-          if (editingId) {
-            editingId = null;
-            document.querySelector('button[type="submit"]').textContent = 'Record Attendance';
-          }
-          loadAttendance();
-        } else {
-          showMessage(result.error, 'error');
-        }
-      } catch (error) {
-        showMessage('Error submitting form', 'error');
-      }
-    });
-
-    // Load attendance records
-    async function loadAttendance() {
-      try {
-        const response = await fetch('/api/attendance');
-        const records = await response.json();
-        
-        const listDiv = document.getElementById('attendanceList');
-        
-        if (records.length === 0) {
-          listDiv.innerHTML = '<p>No attendance records yet.</p>';
-          return;
-        }
-
-        listDiv.innerHTML = records.map(record => `
-          <div class="record">
-            <strong>${record.studentName}</strong> - ${record.date}<br>
-            <small>Keyword: ${record.keyword} | Recorded: ${new Date(record.timestamp).toLocaleString()}</small><br>
-            <button class="edit-btn" onclick="editRecord('${record._id}', '${record.studentName}', '${record.date}', '${record.keyword}')">Edit</button>
-            <button class="delete-btn" onclick="deleteRecord('${record._id}')">Delete</button>
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark sticky-top">
+        <div class="container-fluid">
+           <div class="container-fluid">
+          <a class="navbar-brand" href="#">Jackson's Site</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" target="_blank" href="https://github.com/jaxn-harvey">GitHub <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-github" viewBox="0 0 16 16">
+                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/>
+                </svg></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" target="_blank" href="https://github.com/jaxn-harvey/jaxn-harvey">This Repo <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-git" viewBox="0 0 16 16">
+                  <path d="M15.698 7.287 8.712.302a1.03 1.03 0 0 0-1.457 0l-1.45 1.45 1.84 1.84a1.223 1.223 0 0 1 1.55 1.56l1.773 1.774a1.224 1.224 0 0 1 1.267 2.025 1.226 1.226 0 0 1-2.002-1.334L8.58 5.963v4.353a1.226 1.226 0 1 1-1.008-.036V5.887a1.226 1.226 0 0 1-.666-1.608L5.093 2.465l-4.79 4.79a1.03 1.03 0 0 0 0 1.457l6.986 6.986a1.03 1.03 0 0 0 1.457 0l6.953-6.953a1.03 1.03 0 0 0 0-1.457"/>
+                </svg></a>
+              </li>
+              <!--<li class="nav-item">
+                <a class="nav-link" target="_blank" href="https://validator.nu/?doc=https%3A%2F%2Fjaxn-harvey.github.io%2Fjaxn-harvey%2F">Nu Validator <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                  <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/>
+                </svg></a>
+              </li>
+            -->
+              <li class="nav-item">
+                <a class="nav-link" href="./pycert.html" tabindex="-1">Python Cert <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-card-image" viewBox="0 0 16 16">
+                  <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                  <path d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2zm13 1a.5.5 0 0 1 .5.5v6l-3.775-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12v.54L1 12.5v-9a.5.5 0 0 1 .5-.5z"/>
+                </svg></a>
+              </li>
+            </ul>
           </div>
-        `).join('');
-      } catch (error) {
-        document.getElementById('attendanceList').innerHTML = 'Error loading attendance records';
-      }
-    }
-
-    // Edit record
-    function editRecord(id, studentName, date, keyword) {
-      editingId = id;
-      document.getElementById('studentName').value = studentName;
-      document.getElementById('date').value = date;
-      document.getElementById('keyword').value = keyword;
-      document.querySelector('button[type="submit"]').textContent = 'Update Attendance';
-      showMessage('Editing record - click Update to save changes', 'success');
-    }
-
-    // Delete record
-    async function deleteRecord(id) {
-      if (!confirm('Are you sure you want to delete this record?')) return;
+        </div>
+        </div>
+      </nav>
       
-      try {
-        const response = await fetch(`/api/attendance/${id}`, {
-          method: 'DELETE'
-        });
+      <main role="main">
+      
+        <!-- Main jumbotron for a primary marketing message or call to action -->
+        <div class="jumbotron">
+          <div class="container">
+            <h1 class="display-3">Jackson Harvey</h1>
+            <p>Welcome to my page. I'm Jackson, a student in the College of Business and Technology at the University of North Alabama.</p>
+            <p><a class="btn btn-primary btn-lg" target="_blank" href="https://www.linkedin.com/in/jackson-harvey-19157027b/" role="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-linkedin" viewBox="0 0 16 16">
+              <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"/>
+            </svg> &raquo;</a></p>
+          </div>
+        </div>
+      
+        <div class="container">
+            <div class="spacer col-md-5 d-inline-block">
+              <h2>Major</h2>
+              <p>I'm pursuing a Bachelor's in Information Technology with a concentration in HCI/UX. This includes courses about web development, database management, etc., as well as accompanying courses like design and pyschology.</p>
+              <p><a class="btn btn-secondary" target="_blank" href="https://www.una.edu/business/undergraduate/bachelor-of-science-information-tech/index.html" role="button">View details &raquo;</a></p>
+            </div>
+            <div class="spacer col-md-5 d-inline-block">
+              <h2>Minor</h2>
+              <p>My minor in art allows me to take a variety of courses (Digital Media I, Design I) which teach skills related to my major (Adobe software, design principles).</p>
+              <p><a class="btn btn-secondary" target="_blank" href="https://www.una.edu/art/degree/minors.html" role="button">View details &raquo;</a></p>
+            </div>
+          </div>
 
-        const result = await response.json();
-        
-        if (response.ok) {
-          showMessage(result.message, 'success');
-          loadAttendance();
-        } else {
-          showMessage(result.error, 'error');
-        }
-      } catch (error) {
-        showMessage('Error deleting record', 'error');
-      }
-    }
-
-    // Show message
-    function showMessage(text, type) {
-      const messageDiv = document.getElementById('message');
-      messageDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
-      setTimeout(() => {
-        messageDiv.innerHTML = '';
-      }, 3000);
-    }
-
-    // Initialize page
-    loadClassInfo();
-    loadAttendance();
-
-    // Set today's date as default
-    document.getElementById('date').value = 'February 3, 2026';
-  </script>
+          <div id="carouselExampleControls" class="carousel slide mx-auto d-block" data-bs-ride="carousel">
+            <div class="carousel-inner">
+              <div class="carousel-item active">
+                <div class="card-row">
+                  <div class="card">
+                    <h2 class="pad">Dev-David Project</h2>
+                    <img id="profile-pic" src="/images/vroom inc.png" alt="simple game screenshot">
+                    <ul class="bio"> 
+                      <li>A simplified game using jQuery</li>
+                      <li>CIS 376</li> 
+                    </ul>   
+                    <div class="links">
+                      <a href="https://github.com/jaxn-harvey/dev-david" target="_blank">Check it out on GitHub</a>  
+                     </div> 
+                  </div> 
+                </div>
+              </div>
+              <div class="carousel-item">
+                <div class="card-row">
+                  <div class="card">
+                    <h2 class="pad">HTML Project</h2>
+                    <!--<h3 class="pad">Associate Professor, CIS</h3> -->
+                    <img id="profile-pic2" src="/images/html resume screenshot.png" alt="resume project screenshot">
+                    <ul class="bio"> 
+                      <li>Old independent project</li>
+                      <li>Simple HTML resume</li> 
+                    </ul>   
+                    <div class="links">
+                      <a href="https://github.com/jaxn-harvey/html.capstone1" target="_blank">Check it out on GitHub</a>  
+                     </div> 
+                  </div> 
+                </div>
+              </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+          </div>
+          <hr>
+      
+      </main>
+      
+      <footer class="container">
+        <p>&copy; Jackson Harvey 2026</p>
+      </footer>
+ 
+    
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.0/jquery-ui.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js'></script>
+    <script  src="/scripts/script.js"></script>
 </body>
 </html>
