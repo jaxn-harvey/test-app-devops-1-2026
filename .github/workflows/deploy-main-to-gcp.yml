@@ -23,7 +23,7 @@ jobs:
           # safer than StrictHostKeyChecking=no
           ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
-
+          
       - name: Deploy over SSH
         shell: bash
         env:
