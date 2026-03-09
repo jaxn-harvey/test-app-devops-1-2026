@@ -69,7 +69,7 @@ connectToMongo();
 app.get('/', (req, res) => {
   // res.send('Hello Express'); //string response
   // res.sendFile('index.html'); // <- this don't work w/o imports, assign, and arguements
-  res.sendFile(join(__dirname, 'public', 'index.html')) ;
+  res.sendFile(join(__dirname, 'public', 'attend.html'));
 
 })
 
@@ -86,8 +86,8 @@ app.get('/inject', (req, res) => {
     });
 })
 
-//API Health/Endpoints Documentation
-app.get('/pages/pycert.html', (req, res) => {
+// API Health/Endpoints Documentation
+app.get('/api/health', (req, res) => {
   const endpoints = [
     {
       method: 'GET',
@@ -147,6 +147,107 @@ app.get('/pages/pycert.html', (req, res) => {
     timestamp: new Date().toISOString(),
     endpoints: endpoints
   });
+});
+
+// Class Information API
+app.get('/api/class', (req, res) => {
+  const classInfo = {
+    courseNumber: 'CIS 486',
+    courseName: 'Projects in IS',
+    nickname: 'Full Stack DevOps',
+    semester: 'Spring 2026',
+    calendar: 'Class calendar coming soon!'
+  };
+  res.json(classInfo);
+});
+
+// CRUD Operations for Attendance
+
+// CREATE - Add student attendance
+app.post('/api/attendance', async (req, res) => {
+  try {
+    const { studentName, date, keyword } = req.body;
+
+    if (!studentName || !date || !keyword) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const db = client.db('cis486');
+    const collection = db.collection('attendance');
+
+    const attendanceRecord = {
+      studentName,
+      date,
+      keyword,
+      timestamp: new Date()
+    };
+
+    const result = await collection.insertOne(attendanceRecord);
+    res.json({ message: 'Attendance recorded!', id: result.insertedId });
+  } catch (error) {
+    console.error('Error creating attendance:', error);
+    res.status(500).json({ error: 'Failed to record attendance' });
+  }
+});
+
+// READ - Get all attendance records
+app.get('/api/attendance', async (req, res) => {
+  try {
+    const db = client.db('cis486');
+    const collection = db.collection('attendance');
+
+    const records = await collection.find({}).toArray();
+    res.json(records);
+  } catch (error) {
+    console.error('Error reading attendance:', error);
+    res.status(500).json({ error: 'Failed to get attendance records' });
+  }
+});
+
+// UPDATE - Update attendance record
+app.put('/api/attendance/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { studentName, date, keyword } = req.body;
+
+    const db = client.db('cis486');
+    const collection = db.collection('attendance');
+
+    const result = await collection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { studentName, date, keyword, updatedAt: new Date() } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'Record not found' });
+    }
+
+    res.json({ message: 'Attendance updated!' });
+  } catch (error) {
+    console.error('Error updating attendance:', error);
+    res.status(500).json({ error: 'Failed to update attendance' });
+  }
+});
+
+// DELETE - Delete attendance record
+app.delete('/api/attendance/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const db = client.db('cis486');
+    const collection = db.collection('attendance');
+
+    const result = await collection.deleteOne({ _id: new ObjectId(id) });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Record not found' });
+    }
+
+    res.json({ message: 'Attendance deleted!' });
+  } catch (error) {
+    console.error('Error deleting attendance:', error);
+    res.status(500).json({ error: 'Failed to delete attendance' });
+  }
 });
 
 //start the server. 
