@@ -6,7 +6,7 @@
     <title>Jackson Harvey</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.2/css/bootstrap.min.css'>
-    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="./styles/styles.css">
 </head>
 <body>
 
@@ -49,6 +49,8 @@
         </div>
         </div>
       </nav>
+
+      
       
       <main role="main">
       
@@ -76,20 +78,196 @@
             </div>
           </div>
 
+          <div class="container class-info">
+    <h1>Class Information</h1>
+    <div id="classInfo">Loading class information...</div>
+  </div>
+
+  <!-- Attendance Form -->
+  <div class="container">
+    <h2>Student Attendance</h2>
+    <div id="message"></div>
+    
+    <form id="attendanceForm">
+      <div class="form-group">
+        <label for="studentName">Student Name:</label>
+        <input type="text" id="studentName" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="date">Today's Date:</label>
+        <input type="text" id="date" required placeholder="February 3, 2026">
+      </div>
+      
+      <div class="form-group">
+        <label for="keyword">Keyword from Board:</label>
+        <input type="text" id="keyword" required>
+      </div>
+      
+      <button type="submit">Record Attendance</button>
+      <button type="button" onclick="loadAttendance()">Refresh List</button>
+    </form>
+  </div>
+
+  <!-- Attendance Records -->
+  <div class="container">
+    <h2>Attendance Records</h2>
+    <div id="attendanceList">Loading attendance records...</div>
+  </div>
+
+  <script>
+    let editingId = null;
+
+    // Load class information on page load
+    async function loadClassInfo() {
+      try {
+        const response = await fetch('/api/class');
+        const classData = await response.json();
+        
+        document.getElementById('classInfo').innerHTML = `
+          <h3>${classData.courseNumber} - ${classData.courseName}</h3>
+          <p><strong>Nickname:</strong> ${classData.nickname}</p>
+          <p><strong>Semester:</strong> ${classData.semester}</p>
+          <p><strong>Calendar:</strong> ${classData.calendar}</p>
+        `;
+      } catch (error) {
+        document.getElementById('classInfo').innerHTML = 'Error loading class information';
+      }
+    }
+
+    // Handle form submission
+    document.getElementById('attendanceForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const studentName = document.getElementById('studentName').value;
+      const date = document.getElementById('date').value;
+      const keyword = document.getElementById('keyword').value;
+
+      try {
+        const url = editingId ? `/api/attendance/${editingId}` : '/api/attendance';
+        const method = editingId ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            studentName,
+            date,
+            keyword
+          })
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+          showMessage(result.message, 'success');
+          document.getElementById('attendanceForm').reset();
+          if (editingId) {
+            editingId = null;
+            document.querySelector('button[type="submit"]').textContent = 'Record Attendance';
+          }
+          loadAttendance();
+        } else {
+          showMessage(result.error, 'error');
+        }
+      } catch (error) {
+        showMessage('Error submitting form', 'error');
+      }
+    });
+
+    // Load attendance records
+    async function loadAttendance() {
+      try {
+        const response = await fetch('/api/attendance');
+        const records = await response.json();
+        
+        const listDiv = document.getElementById('attendanceList');
+        
+        if (records.length === 0) {
+          listDiv.innerHTML = '<p>No attendance records yet.</p>';
+          return;
+        }
+
+        listDiv.innerHTML = records.map(record => `
+          <div class="record">
+            <strong>${record.studentName}</strong> - ${record.date}<br>
+            <small>Keyword: ${record.keyword} | Recorded: ${new Date(record.timestamp).toLocaleString()}</small><br>
+            <button class="edit-btn" onclick="editRecord('${record._id}', '${record.studentName}', '${record.date}', '${record.keyword}')">Edit</button>
+            <button class="delete-btn" onclick="deleteRecord('${record._id}')">Delete</button>
+          </div>
+        `).join('');
+      } catch (error) {
+        document.getElementById('attendanceList').innerHTML = 'Error loading attendance records';
+      }
+    }
+
+    // Edit record
+    function editRecord(id, studentName, date, keyword) {
+      editingId = id;
+      document.getElementById('studentName').value = studentName;
+      document.getElementById('date').value = date;
+      document.getElementById('keyword').value = keyword;
+      document.querySelector('button[type="submit"]').textContent = 'Update Attendance';
+      showMessage('Editing record - click Update to save changes', 'success');
+    }
+
+    // Delete record
+    async function deleteRecord(id) {
+      if (!confirm('Are you sure you want to delete this record?')) return;
+      
+      try {
+        const response = await fetch(`/api/attendance/${id}`, {
+          method: 'DELETE'
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+          showMessage(result.message, 'success');
+          loadAttendance();
+        } else {
+          showMessage(result.error, 'error');
+        }
+      } catch (error) {
+        showMessage('Error deleting record', 'error');
+      }
+    }
+
+    // Show message
+    function showMessage(text, type) {
+      const messageDiv = document.getElementById('message');
+      messageDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
+      setTimeout(() => {
+        messageDiv.innerHTML = '';
+      }, 3000);
+    }
+
+    // Initialize page
+    loadClassInfo();
+    loadAttendance();
+
+    // Set today's date as default
+    document.getElementById('date').value = 'February 3, 2026';
+  </script>
+
           <div id="carouselExampleControls" class="carousel slide mx-auto d-block" data-bs-ride="carousel">
             <div class="carousel-inner">
               <div class="carousel-item active">
                 <div class="card-row">
                   <div class="card">
                     <h2 class="pad">Dev-David Project</h2>
-                    <img id="profile-pic" src="/images/vroom inc.png" alt="simple game screenshot">
+                    <img id="profile-pic" src="./images/vroom_inc.png" alt="simple game screenshot">
                     <ul class="bio"> 
                       <li>A simplified game using jQuery</li>
                       <li>CIS 376</li> 
-                    </ul>   
+                    </ul>
+                    <!--   
                     <div class="links">
                       <a href="https://github.com/jaxn-harvey/dev-david" target="_blank">Check it out on GitHub</a>  
-                     </div> 
+                     </div>
+                    --> 
                   </div> 
                 </div>
               </div>
@@ -98,14 +276,16 @@
                   <div class="card">
                     <h2 class="pad">HTML Project</h2>
                     <!--<h3 class="pad">Associate Professor, CIS</h3> -->
-                    <img id="profile-pic2" src="/images/html resume screenshot.png" alt="resume project screenshot">
+                    <img id="profile-pic2" src="./images/html_resume_screenshot.png" alt="resume project screenshot">
                     <ul class="bio"> 
                       <li>Old independent project</li>
                       <li>Simple HTML resume</li> 
                     </ul>   
+                    <!--
                     <div class="links">
                       <a href="https://github.com/jaxn-harvey/html.capstone1" target="_blank">Check it out on GitHub</a>  
-                     </div> 
+                     </div>
+                    -->
                   </div> 
                 </div>
               </div>
