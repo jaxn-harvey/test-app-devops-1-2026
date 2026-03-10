@@ -69,7 +69,7 @@ connectToMongo();
 app.get('/', (req, res) => {
   // res.send('Hello Express'); //string response
   // res.sendFile('index.html'); // <- this don't work w/o imports, assign, and arguements
-  res.sendFile(join(__dirname, 'public', 'attend.html'));
+  res.sendFile(join(__dirname, 'public', 'index.html'));
 
 })
 
@@ -106,136 +106,136 @@ app.get('/api/health', (req, res) => {
     },
     {
       method: 'GET',
-      path: '/api/class',
-      description: 'Get class information (course details)'
+      path: '/api/visitor',
+      description: 'Get visitor information (name and date?)'
     },
     {
       method: 'POST',
-      path: '/api/attendance',
-      description: 'CREATE - Add new student attendance record',
+      path: '/api/messages',
+      description: 'CREATE - Add new message record',
       bodyExample: {
-        studentName: 'John Doe',
-        date: 'February 3, 2026',
+        visitorName: 'John Doe',
+        date: 'March 10, 2026',
         keyword: 'devops'
       }
     },
     {
       method: 'GET',
-      path: '/api/attendance',
-      description: 'READ - Get all attendance records'
+      path: '/api/messages',
+      description: 'READ - Get all message records'
     },
     {
       method: 'PUT',
-      path: '/api/attendance/:id',
-      description: 'UPDATE - Update existing attendance record',
+      path: '/api/messages/:id',
+      description: 'UPDATE - Update existing message record',
       bodyExample: {
-        studentName: 'Jane Doe',
-        date: 'February 3, 2026',
-        keyword: 'mongodb'
+        visitorName: 'Jane Doe',
+        date: 'March 10, 2026',
+        message: 'mongodb'
       }
     },
     {
       method: 'DELETE',
-      path: '/api/attendance/:id',
-      description: 'DELETE - Remove attendance record'
+      path: '/api/messages/:id',
+      description: 'DELETE - Remove message record'
     }
   ];
 
   res.json({
     status: 'healthy',
-    server: 'CIS 486 DevOps Server',
+    server: 'CIS 486 Jackson Quebec mini-app',
     timestamp: new Date().toISOString(),
     endpoints: endpoints
   });
 });
 
-// Class Information API
-app.get('/api/class', (req, res) => {
-  const classInfo = {
+// App Information API
+app.get('/api/about', (req, res) => {
+  const messageInfo = {
     courseNumber: 'CIS 486',
     courseName: 'Projects in IS',
-    nickname: 'Full Stack DevOps',
-    semester: 'Spring 2026',
-    calendar: 'Class calendar coming soon!'
+    midtermApp: 'Midterm Quebec mini-app',
+    semester: 'Spring 2026'
   };
-  res.json(classInfo);
+  res.json(appInfo);
 });
 
-// CRUD Operations for Attendance
+// CRUD Operations for Messages
 
-// CREATE - Add student attendance
-app.post('/api/attendance', async (req, res) => {
+// CREATE - Add mesages
+app.post('/api/messages', async (req, res) => {
   try {
-    const { studentName, date, keyword } = req.body;
+    const { visitorName, date, message } = req.body;
 
-    if (!studentName || !date || !keyword) {
+    if (!visitorName || !date || !message) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    // leaving these as is
     const db = client.db('cis486');
     const collection = db.collection('attendance');
 
-    const attendanceRecord = {
-      studentName,
+    const messageRecord = {
+      visitorName,
       date,
-      keyword,
+      message,
       timestamp: new Date()
     };
 
     const result = await collection.insertOne(attendanceRecord);
-    res.json({ message: 'Attendance recorded!', id: result.insertedId });
+    res.json({ message: 'Message recorded!', id: result.insertedId });
   } catch (error) {
-    console.error('Error creating attendance:', error);
-    res.status(500).json({ error: 'Failed to record attendance' });
+    console.error('Error creating message:', error);
+    res.status(500).json({ error: 'Failed to record message' });
   }
 });
 
-// READ - Get all attendance records
-app.get('/api/attendance', async (req, res) => {
+// READ - Get all message records
+app.get('/api/messages', async (req, res) => {
   try {
     const db = client.db('cis486');
-    const collection = db.collection('attendance');
+    const collection = db.collection('messages');
 
     const records = await collection.find({}).toArray();
     res.json(records);
   } catch (error) {
-    console.error('Error reading attendance:', error);
-    res.status(500).json({ error: 'Failed to get attendance records' });
+    console.error('Error reading messages:', error);
+    res.status(500).json({ error: 'Failed to get message records' });
   }
 });
 
-// UPDATE - Update attendance record
-app.put('/api/attendance/:id', async (req, res) => {
+// UPDATE - Update message record
+app.put('/api/messages/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { studentName, date, keyword } = req.body;
+    const { visitorName, date, message } = req.body;
 
     const db = client.db('cis486');
-    const collection = db.collection('attendance');
+    const collection = db.collection('messages');
 
     const result = await collection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: { studentName, date, keyword, updatedAt: new Date() } }
+      { $set: { visitorName, date, message, updatedAt: new Date() } }
     );
 
     if (result.matchedCount === 0) {
       return res.status(404).json({ error: 'Record not found' });
     }
 
-    res.json({ message: 'Attendance updated!' });
+    res.json({ message: 'Messages updated!' });
   } catch (error) {
-    console.error('Error updating attendance:', error);
-    res.status(500).json({ error: 'Failed to update attendance' });
+    console.error('Error updating messages:', error);
+    res.status(500).json({ error: 'Failed to update messages' });
   }
 });
 
-// DELETE - Delete attendance record
-app.delete('/api/attendance/:id', async (req, res) => {
+// DELETE - Delete message record
+app.delete('/api/messages/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
     const db = client.db('cis486');
-    const collection = db.collection('attendance');
+    const collection = db.collection('messages');
 
     const result = await collection.deleteOne({ _id: new ObjectId(id) });
 
@@ -243,10 +243,10 @@ app.delete('/api/attendance/:id', async (req, res) => {
       return res.status(404).json({ error: 'Record not found' });
     }
 
-    res.json({ message: 'Attendance deleted!' });
+    res.json({ message: 'Message deleted!' });
   } catch (error) {
-    console.error('Error deleting attendance:', error);
-    res.status(500).json({ error: 'Failed to delete attendance' });
+    console.error('Error deleting message:', error);
+    res.status(500).json({ error: 'Failed to delete message' });
   }
 });
 
