@@ -171,7 +171,7 @@ app.post('/api/messages', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // leaving these as is
+    // Need these for midterm?
     const db = client.db('quebec');
     const collection = db.collection('messages');
 
