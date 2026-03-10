@@ -193,7 +193,7 @@
         listDiv.innerHTML = records.map(record => `
           <div class="record">
             <strong>${record.visitorName}</strong> - ${record.date}<br>
-            <small>Keyword: ${record.message} | Recorded: ${new Date(record.timestamp).toLocaleString()}</small><br>
+            <small>Message: ${record.message} | Recorded: ${new Date(record.timestamp).toLocaleString()}</small><br>
             <button class="edit-btn" onclick="editRecord('${record._id}', '${record.visitorName}', '${record.date}', '${record.message}')">Edit</button>
             <button class="delete-btn" onclick="deleteRecord('${record._id}')">Delete</button>
           </div>

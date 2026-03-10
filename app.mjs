@@ -116,7 +116,7 @@ app.get('/api/health', (req, res) => {
       bodyExample: {
         visitorName: 'John Doe',
         date: 'March 10, 2026',
-        keyword: 'devops'
+        message: 'devops'
       }
     },
     {
@@ -172,8 +172,8 @@ app.post('/api/messages', async (req, res) => {
     }
 
     // leaving these as is
-    const db = client.db('cis486');
-    const collection = db.collection('attendance');
+    const db = client.db('quebec');
+    const collection = db.collection('messages');
 
     const messageRecord = {
       visitorName,
@@ -182,7 +182,7 @@ app.post('/api/messages', async (req, res) => {
       timestamp: new Date()
     };
 
-    const result = await collection.insertOne(attendanceRecord);
+    const result = await collection.insertOne(messageRecord);
     res.json({ message: 'Message recorded!', id: result.insertedId });
   } catch (error) {
     console.error('Error creating message:', error);
@@ -193,7 +193,7 @@ app.post('/api/messages', async (req, res) => {
 // READ - Get all message records
 app.get('/api/messages', async (req, res) => {
   try {
-    const db = client.db('cis486');
+    const db = client.db('quebec');
     const collection = db.collection('messages');
 
     const records = await collection.find({}).toArray();
@@ -210,7 +210,7 @@ app.put('/api/messages/:id', async (req, res) => {
     const { id } = req.params;
     const { visitorName, date, message } = req.body;
 
-    const db = client.db('cis486');
+    const db = client.db('quebec');
     const collection = db.collection('messages');
 
     const result = await collection.updateOne(
@@ -234,7 +234,7 @@ app.delete('/api/messages/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const db = client.db('cis486');
+    const db = client.db('quebec');
     const collection = db.collection('messages');
 
     const result = await collection.deleteOne({ _id: new ObjectId(id) });
