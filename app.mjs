@@ -167,9 +167,9 @@ app.post('/api/messages', async (req, res) => {
   try {
     const { visitorName, date, message } = req.body;
 
-    if (!visitorName || !date || !message) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
+    // if (!visitorName || !date || !message) {
+    //   return res.status(400).json({ error: 'Missing required fields' });
+    // }
 
     // Need these for midterm?
     const db = client.db('quebec');
